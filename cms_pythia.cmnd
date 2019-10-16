@@ -20,4 +20,4 @@ POWHEG:pThard = 0
 POWHEG:vetoCount = 100
 SpaceShower:pTmaxMatch = 2
 TimeShower:pTmaxMatch = 2
-POWHEG:nFinal = 1
+POWHEG:nFinal = 3
