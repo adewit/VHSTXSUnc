@@ -23,13 +23,14 @@ The different steps needed are described here:
     yoda2root 0001-mod.yoda #this produces 0001-mod.root
 
 For convenience they have been wrapped in a script as well:
+
     python launch_jobs.py --inputnames pwgevts-test,pwgevents-0001 --step all
     
 The different available steps are 'all' (run the full chain of four steps), 'lhe' (only edit the LHE files), 'lheshower' (edit LHE files to be parsable and run pythia), 'rivet' (only run rivet and yoda2root. This still expects the input file name to be STRING-mod.hepmc)
 It is envisaged that the files may need to be read from a different path. The --inputfilepath and --outputfilepath options default to the current directory, but can be set to a different path to read / write the files to/from.
 Job submission is in principle possible, but has not yet been tested. The syntax would be:
 
-   python launch_jobs.py --inputnames pwgevts-test,pwgevents-0001 --step all --job-mode condor --merge 4
+    python launch_jobs.py --inputnames pwgevts-test,pwgevents-0001 --step all --job-mode condor --merge 4
 
 Note that the argument to --merge needs to be a multiple of 4; if not the jobs will be mismatched in terms of which in-and output files are produced by the chain of commands
 
