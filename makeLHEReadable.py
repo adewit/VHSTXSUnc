@@ -2,13 +2,15 @@ import argparse
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--inputname', type=str)
+parser.add_argument('--inpath', type=str)
+parser.add_argument('--outpath', type=str)
 args = parser.parse_args()
 
 wgtgrouprep=False
 wgtid=False
 counter=0
 all_lines =[]
-with open (r'%s.lhe'%args.inputname, mode='r') as f:
+with open (r'%s/%s.lhe'%(args.inpath,args.inputname), mode='r') as f:
   for line in f.readlines():
     if wgtgrouprep:
       line = line.replace('11','0')
@@ -36,6 +38,6 @@ with open (r'%s.lhe'%args.inputname, mode='r') as f:
       counter=0
     all_lines.append(line) 
 
-with open(r'%s-mod.lhe'%args.inputname, mode='w') as newfile:
+with open(r'%s/%s-mod.lhe'%(args.outpath,args.inputname), mode='w') as newfile:
   newfile.writelines(all_lines)
    
