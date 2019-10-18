@@ -69,7 +69,7 @@ class Jobs:
         self.job_mode = 'interactive'
         self.parallel = 1
         self.merge = 1
-        self.task_name = 'combine_task'
+        self.task_name = 'vhstxs_task'
         self.dry_run = False
         self.bopts = ''  # batch submission options
         self.tracking = False

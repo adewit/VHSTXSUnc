@@ -1,10 +1,9 @@
 # VHSTXSUnc
 Scripts heavily based on https://github.com/ajgilbert/HiggsPtWeighting and https://github.com/ajgilbert/EFT2Obs-Demo 
 
-Workflow has currently been tested on the NAF, an slc7 version will be provided for lxplus
 ## First setup:
 
-    /cvmfs/cms.cern.ch/slc6_amd64_gcc630/cms/cmssw/CMSSW_9_4_13/src/ #(make use of software distributions via cvmfs)
+    /cvmfs/cms.cern.ch/slc7_amd64_gcc630/cms/cmssw/CMSSW_9_4_0/src/ #(make use of software distributions via cvmfs)
     cmsenv
     cd -
     source setup_env.sh
@@ -30,10 +29,7 @@ The different available steps are 'all' (run the full chain of four steps), 'lhe
 It is envisaged that the files may need to be read from a different path. The --inputfilepath and --outputfilepath options default to the current directory, but can be set to a different path to read / write the files to/from.
 Job submission is in principle possible, but has not yet been tested. The syntax would be:
 
-    python launch_jobs.py --inputnames pwgevts-test,pwgevents-0001 --step all --job-mode condor --merge 4
+    python launch_jobs.py --inputnames pwgevts-test,pwgevents-0001 --step all --job-mode condor --sub-opts '+JobFlavour="longlunch"' --merge 4
 
 Note that the argument to --merge needs to be a multiple of 4; if not the jobs will be mismatched in terms of which in-and output files are produced by the chain of commands
 
-
-
-   
