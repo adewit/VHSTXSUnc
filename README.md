@@ -3,7 +3,7 @@ Scripts heavily based on https://github.com/ajgilbert/HiggsPtWeighting and https
 
 ## First setup:
 
-    /cvmfs/cms.cern.ch/slc7_amd64_gcc630/cms/cmssw/CMSSW_9_4_0/src/ #(make use of software distributions via cvmfs)
+    cd /cvmfs/cms.cern.ch/slc7_amd64_gcc630/cms/cmssw/CMSSW_9_4_0/src/ #(make use of software distributions via cvmfs)
     cmsenv
     cd -
     source setup_env.sh
