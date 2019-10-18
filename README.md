@@ -27,7 +27,7 @@ For convenience they have been wrapped in a script as well:
     
 The different available steps are 'all' (run the full chain of four steps), 'lhe' (only edit the LHE files), 'lheshower' (edit LHE files to be parsable and run pythia), 'rivet' (only run rivet and yoda2root. This still expects the input file name to be STRING-mod.hepmc)
 It is envisaged that the files may need to be read from a different path. The --inputfilepath and --outputfilepath options default to the current directory, but can be set to a different path to read / write the files to/from.
-Job submission is in principle possible, but has not yet been tested. The syntax would be:
+Job submission is possible, the syntax:
 
     python launch_jobs.py --inputnames pwgevts-test,pwgevents-0001 --step all --job-mode condor --sub-opts '+JobFlavour="longlunch"' --merge 4
 
