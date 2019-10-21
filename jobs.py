@@ -172,7 +172,7 @@ class Jobs:
                         full_path.replace('.sh', '.status.done')
                     ))
         st = os.stat(fname)
-        os.chmod(fname,stat.S_IRWXO | stat.S_IRWXU)
+        os.chmod(fname, st.st_mode |stat.S_IEXEC)        
         print 'Created job script: %s' % script_filename
         if self.tracking and not self.dry_run:
             trackname = script_filename.replace('.sh', '.status.created')
@@ -263,6 +263,8 @@ class Jobs:
                     outscript.write('  ' + newline + '\n')
                 outscript.write('fi')
             outscript.close()
+            st = os.stat(outscriptname)
+            os.chmod(outscriptname, st.st_mode |stat.S_IEXEC)
             subfile = open(subfilename, "w")
             condor_settings = CONDOR_TEMPLATE % {
               'EXE': outscriptname,
