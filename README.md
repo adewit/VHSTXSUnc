@@ -17,7 +17,7 @@ Every subsequent time you want to use the now configured area, source the cms en
 The different steps needed are described here:
 
     python makeLHEReadable.py --inputname pwgevents-0001#inputname should be the full lhe file name except the .lhe extension. This produces pwgevents-0001-mod.lhe
-    ./RunPythia cms\_pythia.cmnd pwgevents-0001-mod.lhe 0001-mod.hepmc #Run pythia and create the HepMCFile, with all of the weights.
+    ./RunPythia pythia_settings.cmnd pwgevents-0001-mod.lhe 0001-mod.hepmc #Run pythia and create the HepMCFile, with all of the weights.
     rivet --analysis=HiggsTemplateCrossSections 0001-mod.hepmc -o 0001-mod.yoda #run the STXS module on the hepmc file
     yoda2root 0001-mod.yoda #this produces 0001-mod.root
 
