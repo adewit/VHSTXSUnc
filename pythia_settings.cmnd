@@ -13,5 +13,5 @@ POWHEG:pTdef = 1
 POWHEG:emitted = 0
 POWHEG:pTemt = 0
 POWHEG:pThard = 0
-POWHEG:vetoCount = 100
+POWHEG:vetoCount = 3
 POWHEG:nFinal = 3
