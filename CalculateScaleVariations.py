@@ -2,13 +2,14 @@ from ROOT import *; import glob, numpy as n; from array import array
 from AdditionalFunctions import*
 
 #inputFileName = "pwgevents-0001-mod"
-inputFileName = "../pwgevents-hadd-mod"
+#inputFileName = "cmsgrid_final_weights"
+#inputFileName = "../pwgevents-hadd-mod"
 gStyle.SetOptStat(0);
 gStyle.SetTitleYOffset(1.2)
 gStyle.SetTitleXOffset(1.2)
-xsec = 0.044837
 r = 0.5 #factor dor deltaX, X>=150
-CMS=True
+#CMS=True
+CMS=False
 if CMS:NVar = 9
 else:NVar = 8
 
@@ -20,13 +21,26 @@ scaleVarsInclpTXTitles=[]#array of histogram with scale variations
 deltaTitles = ["#Delta_{Y}", "#Delta_{75}", "#Delta_{150}", "#Delta_{250}", "#Delta_{400}", "Total"]
 pTtitles = ["0-75 GeV", "75-150 GeV", "150-250 GeV", "250-400 GeV", ">400 GeV"]
 scaleTitles= ["#mu_{R}=1.0 & #mu_{F}=1.0","#mu_{R}=1.0 & #mu_{F}=2.0", "#mu_{R}=2.0 & #mu_{F}=1.0", "#mu_{R}=2.0 & #mu_{F}=2.0", "#mu_{R}=1.0 & #mu_{F}=0.5", "#mu_{R}=0.5 & #mu_{F}=1.0", "#mu_{R}=0.5 & #mu_{F}=0.5"]
-CMS=True
+
 if not CMS:
+    #inputFileName = "cmsgrid_final_weights"
+    #inputFileName = "cmsgrid_final_weights"
     inputFileName = "../pwgevents-hadd-mod"
+    #inputFileName = "pwgevents-0222-mod_rec"
     f = TFile(inputFileName+".root", "read")
+
 else:
     filein = TFile("../STXSUnc/ZH_ZToLL_HToBB.root",'read')
     maintree=filein.Get("Events")
+
+if not CMS:
+    centralScale = f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30") # mur = 1, muf=1
+    #centralScale.Scale(100000)
+    centralScaleInclpT = GetInclpT(centralScale, 'centralScaleInclpT')
+else:
+    centralScaleInclpT =scaleVarsInclpT[4].Clone()
+    centralScaleInclpT.SetName("centralScaleInclpT")
+
 
 for i in range(0,NVar):
     if not CMS:
@@ -35,17 +49,19 @@ for i in range(0,NVar):
         else:scaleVars.insert(i, f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30")) #forward region
         scaleVars[i].SetName("scaleVars"+str(i))
         scaleVarsInclpT.insert(i,GetInclpT(scaleVars[i], "scaleVarsInclpT_"+str(i)))
+        scaleVarsInclpT[i].Scale(centralScaleInclpT.Integral()/scaleVarsInclpT[i].Integral())
     else:
         scaleVars.insert(i,  TH1F("scaleVars"+str(i),"scaleVars"+str(i),16,400,416))
         maintree.Draw("HTXS_stage_1p1_uncert_cat>>scaleVars"+str(i), "1*(LHEScaleWeight["+str(i)+"]*genWeight)","goff");
         scaleVarsInclpT.insert(i,GetInclpTCMS(scaleVars[i], "scaleVarsInclpT_"+str(i)))
 
-if not CMS:
-    centralScale = f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30") # mur = 1, muf=1
-    centralScaleInclpT = GetInclpT(centralScale, 'centralScaleInclpT')
-else:
-    centralScaleInclpT =scaleVarsInclpT[4].Clone()
-    centralScaleInclpT.SetName("centralScaleInclpT")
+#if not CMS:
+#    centralScale = f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30") # mur = 1, muf=1
+#    #centralScale.Scale(100000)
+#    centralScaleInclpT = GetInclpT(centralScale, 'centralScaleInclpT')
+#else:
+#    centralScaleInclpT =scaleVarsInclpT[4].Clone()
+#    centralScaleInclpT.SetName("centralScaleInclpT")
 
 MaxScaleDeviationInclpT  = centralScaleInclpT.Clone()
 MaxScaleDeviationInclpT.SetName("MaxScaleDeviationInclpT")#histogram with maximum deviations from central scale with all processes combined.
@@ -57,6 +73,7 @@ for k in range(1, centralScaleInclpT.GetNbinsX()+1):
     if centralScaleInclpT.GetBinContent(k)==0:continue;
     for i in range(0,NVar):
         if i==6 and CMS:continue;
+        if (i==5 or i==6 or i==7) and (not CMS):continue;
         dN.insert(i,abs(scaleVarsInclpT[i].Integral(k, centralScaleInclpT.GetNbinsX()+1)-centralScaleInclpT.Integral(k, centralScaleInclpT.GetNbinsX()+1)))
     dNMax = max(dN)
     print dN, dNMax, k
@@ -104,7 +121,8 @@ for i in range(1, 6):
 
 
 #Save the results
-fOut = TFile("MaxScaleVarInclpT.root",'recreate')
+if CMS:fOut = TFile("MaxScaleVarInclpT_CMS.root",'recreate')
+else: fOut = TFile("MaxScaleVarInclpT_central.root",'recreate')
 MaxScaleDeviationInclpT.Write()
 centralScaleInclpT.Write()
 for i in range(0,NVar):
@@ -127,16 +145,19 @@ cB.SetTopMargin( _MYT/_MYH );   cB.SetBottomMargin( _MYB/_MYH );
 UncInPt[0].SetLineColor(6)
 UncInPt[0].SetYTitle("Relative QCD uncertainty")
 UncInPt[0].SetAxisRange(-0.04, 0.1, "Y");
+#UncInPt[0].SetAxisRange(-0.08, 0.15, "Y");
 UncInPt[0].Draw()
 UncInPt[0].SetLineWidth(3)
 for i in range(1, 6):
     UncInPt[i].SetLineColor(histcolors[i])
     UncInPt[i].SetLineWidth(2)
     UncInPt[i].Draw("same")
-leg = TLegend(0.7, 0.7, 0.9, 0.90);
+leg = TLegend(0.4, 0.7, 0.6, 0.90);
 leg.SetTextFont(42)
+leg.SetBorderSize(0)
 for i in range(0, 6):
     leg.AddEntry(UncInPt[i], deltaTitles[i], "l");
 leg.Draw('same');
 cB.SetTickx(0); cB.SetTicky(0);
-cB.SaveAs("pTBinsUnc.pdf");
+if CMS:cB.SaveAs("pTBinsUnc_CMS.pdf");
+else: cB.SaveAs("pTBinsUnc_central.pdf");

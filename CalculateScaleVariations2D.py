@@ -5,10 +5,8 @@ from AdditionalFunctions import*
 gStyle.SetOptStat(0);
 gStyle.SetTitleYOffset(1.2)
 gStyle.SetTitleXOffset(1.2)
-xsec = 0.044837
-r = 0.5 #factor dor deltaX, X>=150
 histcolors = [221,94, 209, 4, 2, 1]
-CMS=True
+CMS=False
 if CMS:NVar = 9
 else:NVar = 8
 scaleVars=[]#array of histogram with scale variations
@@ -20,11 +18,24 @@ scaleVarsInclpTXTitles=[]#array of histogram with scale variations
 pTJetstitles = ["FWD","0-75 GeV0J", "0-75 GeV1J","0-75 GeVGE2J","75-150 GeV0J", "75-150 GeV1J","75-150 GeVGE2J","150-250 GeV0J", "150-250 GeV1J","150-250 GeVGE2J","250-400 GeV0J", "250-400 GeV1J","250-400 GeVGE2J",">400 GeV0J", ">400 GeV1J",">400 GeVGE2J"]
 
 if not CMS:
+    #inputFileName = "cmsgrid_final_weights"
+    #inputFileName = "cmsgrid_final_weights"
+    #inputFileName = "cmsgrid_final_weights"
+    #inputFileName = "pwgevents-0222-mod_rec"
     inputFileName = "../pwgevents-hadd-mod"
     f = TFile(inputFileName+".root", "read")
 else:
     filein = TFile("../STXSUnc/ZH_ZToLL_HToBB.root",'read')
     maintree=filein.Get("Events")
+
+if not CMS:
+    centralScale = f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30") # mur = 1, muf=1
+    centralScaleRebinned = ReorganisedHist(centralScale, 'centralScaleRebinned')
+#    centralScaleRebinned.Scale(100000)
+else:
+    centralScaleRebinned=scaleVarsRebinned[4].Clone()
+    centralScaleRebinned.SetName("centralScaleRebinnedCMS")
+
 
 for i in range(0,NVar):
     if not CMS:
@@ -32,20 +43,24 @@ for i in range(0,NVar):
             scaleVars.insert(i, f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30["+str(i)+"]")) 
         else:scaleVars.insert(i, f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30")) #forward region
         scaleVars[i].SetName("scaleVars_"+str(i))
+#        scaleVars[i].Scale(centralScale.Integral()/scaleVars[i].Integral())
+#
         scaleVarsRebinned.insert(i,ReorganisedHist(scaleVars[i], "scaleVarsRebinned_"+str(i)))
+        scaleVarsRebinned[i].Scale(centralScaleRebinned.Integral()/scaleVarsRebinned[i].Integral())
     else:
         scaleVarsCMS.insert(i,  TH1F("scaleVarsCMS"+str(i),"scaleVarsCMS"+str(i),16,400,416))
         maintree.Draw("HTXS_stage_1p1_uncert_cat>>scaleVarsCMS"+str(i), "1*(LHEScaleWeight["+str(i)+"]*genWeight)","goff");
         scaleVarsCMS.insert(i, maintree.GetHistogram())
         scaleVarsRebinned.insert(i, ReorganisedHistCMS(scaleVarsCMS[i], "scaleVarsRebinned_"+str(i)))
 
-if not CMS:
-    centralScale = f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30") # mur = 1, muf=1
-    centralScaleRebinned = ReorganisedHist(centralScale, 'centralScaleRebinned')
-else:
-    centralScaleRebinned=scaleVarsRebinned[4].Clone()
-    centralScaleRebinned.SetName("centralScaleRebinnedCMS")
-
+#if not CMS:
+#    centralScale = f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30") # mur = 1, muf=1
+#    centralScaleRebinned = ReorganisedHist(centralScale, 'centralScaleRebinned')
+##    centralScaleRebinned.Scale(100000)
+#else:
+#    centralScaleRebinned=scaleVarsRebinned[4].Clone()
+#    centralScaleRebinned.SetName("centralScaleRebinnedCMS")
+#
 MaxScaleDeviationRebinned  = centralScaleRebinned.Clone()
 MaxScaleDeviationRebinned.SetName("MaxScaleDeviationRebinned")#histogram with maximum deviations from central scale with all processes combined.
 MaxScaleDeviationRebinned.SetTitle("MaxScaleDeviationRebinned")#histogram with maximum deviations from central scale with all processes combined.
@@ -60,7 +75,8 @@ for k in range(0, npTBins):
             print globalBin
             continue;
         for i in range(0,NVar):
-            if i==6 and CMS:continue;
+            if (i==5 or i==6 or i==7) and not CMS:continue;
+            #if i==6 and CMS:continue;
             dN.insert(i,abs(scaleVarsRebinned[i].Integral(globalBin, binMax)-centralScaleRebinned.Integral(globalBin, binMax)))
         dNMax = max(dN)
         print globalBin, dN, dNMax, centralScaleRebinned.Integral(globalBin, binMax)
@@ -68,7 +84,8 @@ for k in range(0, npTBins):
 
 centralScaleRebinnedCMS=scaleVarsRebinned[4].Clone()
 centralScaleRebinnedCMS.SetName("centralScaleRebinnedCMS")
-f0 = TFile("MaxScaleVarInclpT.root","read")
+if CMS:f0 = TFile("MaxScaleVarInclpT_CMS.root","read")
+else: f0 = TFile("MaxScaleVarInclpT_central.root","read")
 UncInPtBins5 = f0.Get("UncInPtBins5")
 
 UncInPtandNJets=[]
@@ -104,7 +121,8 @@ for j in range(0, nJetBins):
         UncInPtandNJets[2].GetXaxis().SetBinLabel(globalBin,pTJetstitles[globalBin-1])
 
 #Save the results
-fOut = TFile("MaxScaleVarJetsandPt.root",'recreate')
+if CMS:fOut = TFile("MaxScaleVarJetsandPt_CMS.root",'recreate')
+else: fOut = TFile("MaxScaleVarJetsandPt_central.root",'recreate')
 MaxScaleDeviationRebinned.Write()
 centralScaleRebinned.Write()
 UncInPtandNJets[1].Write()
@@ -125,7 +143,9 @@ cB=TCanvas("cB","cB",_MYW,_MYH);
 cB.SetLeftMargin( _MYL/_MYW );  cB.SetRightMargin( _MYR/_MYW );
 cB.SetTopMargin( _MYT/_MYH );   cB.SetBottomMargin( _MYB/_MYH );
 UncInPtandNJets[1].SetLineColor(kRed)
-UncInPtandNJets[1].SetAxisRange(-0.1, 0.25, "Y");
+#UncInPtandNJets[1].SetAxisRange(-0.5, 0.5, "Y");
+UncInPtandNJets[1].SetAxisRange(-0.45, 0.5, "Y");
+#UncInPtandNJets[1].SetAxisRange(-0.1, 0.3, "Y");
 UncInPtandNJets[1].SetYTitle("Relative QCD uncertainty")
 UncInPtandNJets[1].Draw()
 UncInPtandNJets[2].SetLineColor(kBlue)
@@ -145,6 +165,7 @@ leg.AddEntry(UncInPtandNJets[1], "#Delta_{1}", "l");
 leg.AddEntry(UncInPtandNJets[2], "#Delta_{2}", "l");
 leg.AddEntry(UncInPtandNJets[3], "Total", "l");
 leg.SetBorderSize(0);
-leg.Draw('same');
+#leg.Draw('same');
 cB.SetTickx(0); cB.SetTicky(0);
-cB.SaveAs("pTBinsJetsUnc.pdf");
+if CMS:cB.SaveAs("pTBinsJetsUnc_CMS.pdf")
+else: cB.SaveAs("pTBinsJetsUnc_central.pdf")

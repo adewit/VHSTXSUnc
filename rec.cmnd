@@ -6,6 +6,9 @@ Next:numberShowProcess = 1
 Next:numberShowEvent = 1
 Main:timesAllowErrors = 10
 
+Tune:pp 14
+Tune:ee 7
+
 Init:showChangedSettings = on
 Init:showChangedParticleData = off
 
@@ -27,4 +30,8 @@ POWHEG:pTdef = 1
 POWHEG:MPIveto = 0
 
 POWHEG:QEDveto = 2
+
+25:m0 = 125.0
+25:onMode = off
+25:onIfMatch = 5 -5
 

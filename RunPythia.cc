@@ -103,8 +103,12 @@ int main(int argc, char *argv[]) {
 
     HepMC::GenEvent* hepmcevt = new HepMC::GenEvent();
     hepmcevt->weights().clear();
+    double GenEventWeight = 0;
+    GenEventWeight = pythia.info.weight();
+    //cout << "genEventWeight =  " << GenEventWeight << endl;
     for (int i = 0; i < pythia.info.getWeightsDetailedSize(); i++){
       hepmcevt->weights().push_back(pythia.info.getWeightsDetailedValue(std::to_string(i)));
+      //hepmcevt->weights().push_back(GenEventWeight*pythia.info.getWeightsDetailedValue(std::to_string(i)));
     }
 
     ToHepMC.fill_next_event( pythia, hepmcevt );
