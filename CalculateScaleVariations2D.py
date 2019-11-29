@@ -59,8 +59,7 @@ for k in range(0, npTBins):
             print globalBin
             continue;
         for i in range(0,NVar):
-            if (i==5 or i==6 or i==7) and not CMS:continue;
-            #if i==6 and CMS:continue;
+            if (i==5 or i==7) and CMS:continue;
             dN.insert(i,abs(scaleVarsRebinned[i].Integral(globalBin, binMax)-centralScaleRebinned.Integral(globalBin, binMax)))
         dNMax = max(dN)
         print globalBin, dN, dNMax, centralScaleRebinned.Integral(globalBin, binMax)

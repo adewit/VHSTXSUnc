@@ -55,7 +55,7 @@ for k in range(1, centralScaleInclpT.GetNbinsX()+1):
     dN=[]
     if centralScaleInclpT.GetBinContent(k)==0:continue;
     for i in range(0,NVar):
-        if (i==5 or i==6) and (CMS):continue;
+        if (i==5 or i==7) and (CMS):continue;
         dN.insert(i,abs(scaleVarsInclpT[i].Integral(k, centralScaleInclpT.GetNbinsX()+1)-centralScaleInclpT.Integral(k, centralScaleInclpT.GetNbinsX()+1)))
     dNMax = max(dN)
     print dN, dNMax, k
