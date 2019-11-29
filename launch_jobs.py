@@ -10,7 +10,7 @@ job_mgr = Jobs()
 parser = argparse.ArgumentParser()
 
 parser.add_argument('--step', default='none', choices=['none', 'lhe', 'lheshower', 'rivet', 'all'])
-parser.add_argument('--shower-cmd', default='./RunPythia pythia_settings_new.cmnd')
+parser.add_argument('--shower-cmd', default='./RunPythia rec.cmnd')
 parser.add_argument('--inputnames', default='test')
 parser.add_argument('--infilepath', default='.')
 parser.add_argument('--outfilepath', default='.')

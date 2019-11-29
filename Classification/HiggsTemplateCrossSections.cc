@@ -550,7 +550,7 @@ namespace Rivet {
       HiggsClassification cat = classifyEvent(event,m_HiggsProdMode);
 
       // Fill histograms: categorization --> linerize the categories
-      const double weight = event.weights()[0];
+      const double weight = 1.;
       m_sumw += weight;
 
       int F=cat.stage0_cat%10, P=cat.stage1_1_cat_pTjet30GeV/100;
