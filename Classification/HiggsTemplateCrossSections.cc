@@ -25,6 +25,7 @@ namespace Rivet {
     HiggsTemplateCrossSections()
       : Analysis("HiggsTemplateCrossSections"),
     m_HiggsProdMode(STXS::UNKNOWN) {}
+//    m_HiggsProdMode(STXS::QQ2ZH) {}
 
   public:
 
@@ -170,7 +171,8 @@ namespace Rivet {
 	if(nWs+nZs>0) cat.V = getLastInstance(cat.V);
 	else {
 	  for (auto ptcl : Rivet::HepMCUtils::particles(HSvtx,HepMC::children)) {
-	    if (!PID::isHiggs(ptcl->pdg_id())) {
+	    if (!PID::isHiggs(ptcl->pdg_id()) && PID::isLepton(ptcl->pdg_id())) {
+	    //if (!PID::isHiggs(ptcl->pdg_id()) && !PID::isQuark(ptcl->pdg_id())) {
 	      uncatV_decays += Particle(ptcl);
 	      uncatV_p4 += Particle(ptcl).momentum();
 	      uncatV_v4 += Particle(ptcl).origin();
@@ -253,6 +255,7 @@ namespace Rivet {
 
       cat.jets25 = jets.jetsByPt( Cuts::pT > 25.0 );
       cat.jets30 = jets.jetsByPt( Cuts::pT > 30.0 );
+      cat.jetsNoCut = jets.jetsByPt( Cuts::pT > 0. );
  
       // check that four mometum sum of all stable particles satisfies momentum consevation
       if ( sum.pt()>0.1 )
@@ -261,8 +264,8 @@ namespace Rivet {
       
       // check if V-boson was not included in the event record but decay particles were
       // EFT contact interaction: return UNKNOWN for category but set all event/particle kinematics
-      if(is_uncatdV) 
-    return error(cat,STXS::VH_IDENTIFICATION,"Failed to identify associated V-boson!");
+      //if(is_uncatdV) 
+      //return error(cat,STXS::VH_IDENTIFICATION,"Failed to identify associated V-boson!");
        
       /*****
        * Step 4.
@@ -579,6 +582,12 @@ namespace Rivet {
 
       // Jet variables. Use jet collection with pT threshold at 30 GeV
       if (cat.jets30.size()) hist_pT_jet1->fill(cat.jets30[0].pt(),weight);
+      if (cat.jets30.size() && cat.V.pT()<90) hist_pT_jet1_ptVreg1->fill(cat.jets30[0].pt());
+      if (cat.jets30.size() && cat.V.pT()>90) hist_pT_jet1_ptVreg2->fill(cat.jets30[0].pt());
+      if (cat.jetsNoCut.size() && cat.V.pT()<90) hist_pT_jet1_ptVreg1_NoCut->fill(cat.jetsNoCut[0].pt());
+      if (cat.jetsNoCut.size() && cat.V.pT()>90) hist_pT_jet1_ptVreg2_NoCut->fill(cat.jetsNoCut[0].pt());
+
+
       if (cat.jets30.size()>=2) {
 	const FourMomentum &j1 = cat.jets30[0].momentum(), &j2 = cat.jets30[1].momentum();
 	hist_deltay_jj->fill(std::abs(j1.rapidity()-j2.rapidity()),weight);
@@ -613,7 +622,7 @@ namespace Rivet {
       printClassificationSummary();
       double sf = m_sumw>0?1.0/m_sumw:1.0;
       for (auto hist:{hist_stage0,hist_stage1_1_pTjet25,hist_stage1_1_pTjet30,hist_stage1_1_fine_pTjet25,hist_stage1_1_fine_pTjet30,hist_Njets25,hist_Njets30,
-	    hist_pT_Higgs,hist_y_Higgs,hist_pT_V,hist_pT_jet1,hist_deltay_jj,hist_dijet_mass,hist_pT_Hjj})
+	    hist_pT_Higgs,hist_y_Higgs,hist_pT_V,hist_pT_jet1,hist_pT_jet1_ptVreg1,hist_pT_jet1_ptVreg2,hist_pT_jet1_ptVreg1_NoCut,hist_pT_jet1_ptVreg2_NoCut,hist_deltay_jj,hist_dijet_mass,hist_pT_Hjj})
 	scale(hist, sf);
     }
     
@@ -632,6 +641,10 @@ namespace Rivet {
       book(hist_y_Higgs, "y_Higgs",80,-4,4);
       book(hist_pT_V, "pT_V",80,0,400);
       book(hist_pT_jet1, "pT_jet1",80,0,400);
+      book(hist_pT_jet1_ptVreg1,    "pT_jet1_ptVreg1",80,0,400);
+      book(hist_pT_jet1_ptVreg2,    "pT_jet1_ptVreg2",80,0,400);
+      book(hist_pT_jet1_ptVreg1_NoCut,    "pT_jet1_ptVreg1_NoCut",80,0,400);
+      book(hist_pT_jet1_ptVreg2_NoCut,    "pT_jet1_ptVreg2_NoCut",80,0,400);
       book(hist_deltay_jj, "deltay_jj",50,0,10);
       book(hist_dijet_mass, "m_jj",50,0,2000);
       book(hist_pT_Hjj, "pT_Hjj",50,0,250);
@@ -653,7 +666,7 @@ namespace Rivet {
     Histo1DPtr hist_stage1_1_pTjet25, hist_stage1_1_pTjet30;
     Histo1DPtr hist_stage1_1_fine_pTjet25, hist_stage1_1_fine_pTjet30;
     Histo1DPtr hist_pT_Higgs, hist_y_Higgs;
-    Histo1DPtr hist_pT_V, hist_pT_jet1;
+    Histo1DPtr hist_pT_V, hist_pT_jet1,hist_pT_jet1_ptVreg1,hist_pT_jet1_ptVreg2,hist_pT_jet1_ptVreg1_NoCut,hist_pT_jet1_ptVreg2_NoCut;
     Histo1DPtr hist_deltay_jj, hist_dijet_mass, hist_pT_Hjj;
     Histo1DPtr hist_Njets25, hist_Njets30;
   };

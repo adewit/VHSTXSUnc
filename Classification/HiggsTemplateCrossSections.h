@@ -247,7 +247,7 @@ namespace STXS {
       TLV p4decay_V;
       // Jets are built ignoring Higgs decay products and leptons from V decays
       // jets with pT > 25 GeV and 30 GeV
-      TLVs jets25, jets30;
+      TLVs jets25, jets30, jetsNoCut;
       // Event categorization according to YR4 wrtietup
       // https://cds.cern.ch/record/2138079
       // Modified according to https://twiki.cern.ch/twiki/bin/view/LHCPhysics/LHCHXSWGFiducialAndSTXS#Stage_1_1
@@ -271,6 +271,7 @@ namespace STXS {
       cat.p4decay_V = MakeTLV(stxs_cat_rivet.p4decay_V);
       cat.jets25 = MakeTLVs(stxs_cat_rivet.jets25);
       cat.jets30 = MakeTLVs(stxs_cat_rivet.jets30);
+      cat.jetsNoCut = MakeTLVs(stxs_cat_rivet.jets);
       cat.stage0_cat = stxs_cat_rivet.stage0_cat;
       cat.stage1_1_cat_pTjet25GeV = stxs_cat_rivet.stage1_1_cat_pTjet25GeV;
       cat.stage1_1_cat_pTjet30GeV = stxs_cat_rivet.stage1_1_cat_pTjet30GeV;
@@ -402,7 +403,7 @@ namespace Rivet {
     /// The four momentum sum of all stable decay products orignating from the vector boson in associated production
     Rivet::FourMomentum p4decay_V;
     /// Jets built ignoring Higgs decay products and leptons from V decays, pT thresholds at 25 GeV and 30 GeV
-    Rivet::Jets jets25, jets30;
+    Rivet::Jets jets25, jets30, jetsNoCut;
     /// Stage-0 STXS event classifcation, see: https://cds.cern.ch/record/2138079
     STXS::Stage0::Category stage0_cat;
     /// Stage-1 STXS event classifcation, see: https://cds.cern.ch/record/2138079
