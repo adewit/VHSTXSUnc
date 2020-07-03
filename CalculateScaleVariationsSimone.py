@@ -4,10 +4,9 @@ gStyle.SetOptStat(0);
 gStyle.SetTitleYOffset(1.2)
 gStyle.SetTitleXOffset(1.2)
 r = 0.5 #factor dor deltaX, X>=150
-CMS=True
+CMS=False
 if CMS:NVar = 9
-#else:NVar = 11
-else:NVar = 8
+else:NVar = 11
 
 histcolors = [221,94, 209, 4, 2, 1]
 scaleVars=[]#array of histogram with scale variations
@@ -16,13 +15,13 @@ scaleVarsInclpT=[]#array of histogram with scale variations
 scaleVarsInclpTXTitles=[]#array of histogram with scale variations
 deltaTitles = ["#Delta_{Y}", "#Delta_{75}", "#Delta_{150}", "#Delta_{250}", "#Delta_{400}", "Total"]
 pTtitles = ["0-75 GeV", "75-150 GeV", "150-250 GeV", "250-400 GeV", ">400 GeV"]
-scaleTitles= ["#mu_{R}=1.0 & #mu_{F}=1.0","#mu_{R}=1.0 & #mu_{F}=2.0", "#mu_{R}=2.0 & #mu_{F}=1.0", "#mu_{R}=2.0 & #mu_{F}=2.0", "#mu_{R}=1.0 & #mu_{F}=0.5", "#mu_{R}=0.5 & #mu_{F}=1.0", "#mu_{R}=0.5 & #mu_{F}=0.5"]
+scaleTitles= ["#mu_{R}=1.0 & #mu_{F}=1.0","#mu_{R}=1.0 & #mu_{F}=2.0", "#mu_{R}=2.0 & #mu_{F}=1.0", "#mu_{R}=2.0 & #mu_{F}=2.0", "#mu_{R}=1.0 & #mu_{F}=0.5", "#mu_{R}=0.5 & #mu_{F}=1.0", "#mu_{R}=0.5 & #mu_{F}=0.5","10th weight","11th weight"]
 
 if not CMS:
-#    inputFileName = "../VHSTXS_Files/full_isLepton"
+    inputFileName = "../VHSTXS_Files/full_isLepton"
 #    inputFileName = "pwgevents-0326-mod"
     #inputFileName = "../VHSTXS_Files/pwgevents-0326-mod"
-    inputFileName = "../VHSTXS_Files/all"
+    #inputFileName = "../VHSTXS_Files/all"
     #inputFileName = "../VHSTXS_Files/pwgevents-0-40"
     f = TFile(inputFileName+".root", "read")
 
@@ -31,8 +30,8 @@ else:
     maintree=filein.Get("Events")
 
 if not CMS:
-    #centralScale = f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30[004]") # mur = 1, muf=1
-    centralScale = f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30") # mur = 1, muf=1
+    centralScale = f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30[000]") # mur = 1, muf=1
+    #centralScale = f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30") # mur = 1, muf=1
     centralScaleInclpT = GetInclpT(centralScale, 'centralScaleInclpT')
 else:
     centralScaleInclpT =scaleVarsInclpT[4].Clone()
@@ -42,14 +41,13 @@ else:
 for i in range(0,NVar):
     if not CMS:
         if i>0 and i<10:
-            #scaleVars.insert(i, f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30[00"+str(i)+"]"))
-            scaleVars.insert(i, f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30["+str(i)+"]"))
-        #elif i==10:scaleVars.insert(i, f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30[010]")) #forward region
-        elif i==0:scaleVars.insert(i, f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30")) #forward region
-        #elif i==0:scaleVars.insert(i, f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30[000]")) #forward region
+            scaleVars.insert(i, f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30[00"+str(i)+"]"))
+            #scaleVars.insert(i, f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30["+str(i)+"]"))
+        elif i==10:scaleVars.insert(i, f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30[010]")) #forward region
+        #elif i==0:scaleVars.insert(i, f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30")) #forward region
+        elif i==0:scaleVars.insert(i, f.Get("/HiggsTemplateCrossSections/STXS_stage1_1_fine_pTjet30[000]")) #forward region
         scaleVars[i].SetName("scaleVars"+str(i))
         scaleVarsInclpT.insert(i,GetInclpT(scaleVars[i], "scaleVarsInclpT_"+str(i)))
-        #scaleVarsInclpT[i].Scale(centralScaleInclpT.Integral()/scaleVarsInclpT[i].Integral())
     else:
         scaleVars.insert(i,  TH1F("scaleVars"+str(i),"scaleVars"+str(i),16,400,416))
         maintree.Draw("HTXS_stage_1p1_uncert_cat>>scaleVars"+str(i), "1*(LHEScaleWeight["+str(i)+"]*genWeight)","goff");
@@ -64,6 +62,7 @@ for k in range(1, centralScaleInclpT.GetNbinsX()+1):
     dN=[]
     if centralScaleInclpT.GetBinContent(k)==0:continue;
     for i in range(0,NVar):
+        #if (i<9):continue;
         if (i==5 or i==7) and (CMS):continue;
         dN.insert(i,abs(scaleVarsInclpT[i].Integral(k, centralScaleInclpT.GetNbinsX()+1)-centralScaleInclpT.Integral(k, centralScaleInclpT.GetNbinsX()+1)))
     dNMax = max(dN)
@@ -112,7 +111,7 @@ for i in range(1, 6):
 
 #Save the results
 if CMS:fOut = TFile("MaxScaleVarInclpT_CMS.root",'recreate')
-else: fOut = TFile("MaxScaleVarInclpT_central.root",'recreate')
+else: fOut = TFile("MaxScaleVarInclpT_centralSimone.root",'recreate')
 MaxScaleDeviationInclpT.Write()
 centralScaleInclpT.Write()
 for i in range(0,NVar):
@@ -146,4 +145,4 @@ for i in range(0, 6):
 leg.Draw('same');
 cB.SetTickx(0); cB.SetTicky(0);
 if CMS:cB.SaveAs("pTBinsUnc_CMS.pdf");
-else: cB.SaveAs("pTBinsUnc_central.pdf");
+else: cB.SaveAs("pTBinsUnc_centralSimonelast11weights.pdf");

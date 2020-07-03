@@ -1,0 +1,36 @@
+Main:numberOfEvents = 0
+Next:numberShowLHA = 1
+Next:numberShowInfo = 1
+Next:numberShowProcess = 1
+Next:numberShowEvent = 1
+Main:timesAllowErrors = 10
+
+Tune:pp 14
+Tune:ee 7
+
+Init:showChangedSettings = on
+Init:showChangedParticleData = off
+
+Beams:frameType = 4
+POWHEG:nFinal = 3
+
+POWHEG:veto = 1
+
+POWHEG:vetoCount = 3
+
+POWHEG:pThard = 2
+
+POWHEG:pTemt = 0
+
+POWHEG:emitted = 0
+
+POWHEG:pTdef = 1
+
+POWHEG:MPIveto = 0
+
+POWHEG:QEDveto = 2
+
+25:m0 = 125.0
+25:onMode = off
+25:onIfMatch = 5 -5
+
